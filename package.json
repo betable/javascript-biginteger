@@ -1,0 +1,7 @@
+{
+    "name": "biginteger",
+    "version": "0.1.0",
+    "description": "An arbitrarily-sized-integer library for JavaScript.",
+    "dependencies": {
+    }
+}
