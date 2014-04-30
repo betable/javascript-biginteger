@@ -241,6 +241,17 @@ BigInteger.prototype.toString = function(base) {
 	}
 };
 
+// Only 5 different prefixes are used in regexes, so cache them because
+// calling new RegExp is expensive and they are immutable/reusable.
+var prefixRegexes = {}
+function getPrefixRegex(prefix) {
+	var r = prefixRegexes[prefix]
+	if (!r) {
+		r = prefixRegexes[prefix] = new RegExp('^([+\\-]?)(' + prefix + ')?([0-9a-z]*)(?:\\.\\d*)?$', 'i')
+	}
+	return r
+}
+
 // Verify strings for parsing
 BigInteger.radixRegex = [
 	/^$/,
@@ -341,21 +352,21 @@ BigInteger.parse = function(s, base) {
 
 	var prefixRE;
 	if (typeof base === "undefined") {
-		prefixRE = '0[xcb]';
+		prefixRE = getPrefixRegex("0[xcb]")
 	}
 	else if (base == 16) {
-		prefixRE = '0x';
+		prefixRE = getPrefixRegex("0x")
 	}
 	else if (base == 8) {
-		prefixRE = '0c';
+		prefixRE = getPrefixRegex("0c")
 	}
 	else if (base == 2) {
-		prefixRE = '0b';
+		prefixRE = getPrefixRegex("0b")
 	}
 	else {
-		prefixRE = '';
+		prefixRE = getPrefixRegex("")
 	}
-	var parts = new RegExp('^([+\\-]?)(' + prefixRE + ')?([0-9a-z]*)(?:\\.\\d*)?$', 'i').exec(s);
+	var parts = prefixRE.exec(s);
 	if (parts) {
 		var sign = parts[1] || "+";
 		var baseSection = parts[2] || "";
